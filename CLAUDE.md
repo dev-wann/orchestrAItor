@@ -70,13 +70,14 @@ Mac-native Multi-Agent AI Orchestration Platform built with Tauri v2 + React + T
 
 ## Development Flow
 
-### 코드 작성 → 리뷰 루프
+### 코드 작성 → 리뷰 → PR 루프
 1. **Write**: 코드 작성 (의미 있는 단위에서 서브에이전트 병렬 활용)
 2. **Review**: `/review` 로 풀스택 코드 리뷰 (Rust + TypeScript 모두 커버)
 3. **Fix**: 리뷰 피드백 반영
 4. **Pre-commit**: `/pre-commit` 으로 커밋 전 최종 체크
 5. **Commit**: 통과 시 커밋
 6. **Log**: `/log` 로 작업 기록 업데이트
+7. **PR**: PR 범위 작업 완료 시 `/write-pr` 로 PR 생성
 
 ### 서브에이전트 활용 원칙
 - **병렬화**: 독립적인 파일/모듈 작업만 병렬 실행 (예: 스토어 3개 동시 작성)
@@ -87,6 +88,7 @@ Mac-native Multi-Agent AI Orchestration Platform built with Tauri v2 + React + T
 - `/review` — Rust + TypeScript 풀스택 코드 리뷰
 - `/pre-commit` — 커밋 전 품질 체크
 - `/log` — work-logs 작업 기록 생성/업데이트
+- `/write-pr` — PR 분석, 작성, push, 생성까지 일괄 수행
 
 ## Current Phase: M0 (Foundation)
 
