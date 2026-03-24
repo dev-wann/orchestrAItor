@@ -30,20 +30,14 @@ pub fn run() {
             show_main_window,
         ])
         .setup(|app| {
-            let show_main = MenuItemBuilder::with_id("show_main", "Show Main")
-                .build(app)
-                .expect("failed to build Show Main menu item");
-            let toggle_float = MenuItemBuilder::with_id("toggle_float", "Toggle Float")
-                .build(app)
-                .expect("failed to build Toggle Float menu item");
-            let quit = MenuItemBuilder::with_id("quit", "Quit")
-                .build(app)
-                .expect("failed to build Quit menu item");
+            let show_main = MenuItemBuilder::with_id("show_main", "Show Main").build(app)?;
+            let toggle_float =
+                MenuItemBuilder::with_id("toggle_float", "Toggle Float").build(app)?;
+            let quit = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
 
             let menu = MenuBuilder::new(app)
                 .items(&[&show_main, &toggle_float, &quit])
-                .build()
-                .expect("failed to build tray menu");
+                .build()?;
 
             TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
@@ -84,8 +78,7 @@ pub fn run() {
                         }
                     }
                 })
-                .build(app)
-                .expect("failed to build tray icon");
+                .build(app)?;
 
             Ok(())
         })
