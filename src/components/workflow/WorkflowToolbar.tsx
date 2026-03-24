@@ -1,7 +1,8 @@
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { Plus, Save, Trash2, ChevronDown } from 'lucide-react'
 import { type Node, type Edge } from '@xyflow/react'
 import { useWorkflowStore } from '../../store/workflowStore'
+import { useAgentStore } from '../../store/agentStore'
 import {
   useWorkflows,
   useCreateWorkflow,
@@ -10,6 +11,8 @@ import {
 } from '../../hooks/useDatabase'
 import type { Workflow } from '../../types/database'
 import type { AgentNodeData } from './AgentNode'
+import RunButton from './RunButton'
+import { runAgent } from '../../lib/agentRunner'
 
 interface WorkflowGraph {
   nodes: Node<AgentNodeData>[]
@@ -45,6 +48,15 @@ export default function WorkflowToolbar() {
   const edges = useWorkflowStore((s) => s.edges)
   const setNodes = useWorkflowStore((s) => s.setNodes)
   const setEdges = useWorkflowStore((s) => s.setEdges)
+  const isRunning = useWorkflowStore((s) => s.isRunning)
+  const setRunning = useWorkflowStore((s) => s.setRunning)
+
+  const agents = useAgentStore((s) => s.agents)
+  const updateAgentStatus = useAgentStore((s) => s.updateAgentStatus)
+  const appendOutput = useAgentStore((s) => s.appendOutput)
+  const setTokenCount = useAgentStore((s) => s.setTokenCount)
+
+  const abortRef = useRef<AbortController | null>(null)
 
   const { data: workflows = [] } = useWorkflows()
   const createWorkflow = useCreateWorkflow()
@@ -124,6 +136,43 @@ export default function WorkflowToolbar() {
     setEdges,
   ])
 
+  // ── Run workflow ──────────────────────────────────────────────────
+  const handleRun = useCallback(() => {
+    const firstAgentNode = nodes.find((n) => n.type === 'agent')
+    if (!firstAgentNode) return
+
+    const agentData = firstAgentNode.data as AgentNodeData
+    const agent = agents.find((a) => a.name === agentData.label)
+    if (!agent) return
+
+    const controller = new AbortController()
+    abortRef.current = controller
+
+    setRunning(true)
+
+    void runAgent({
+      agent,
+      input: 'Hello, please introduce yourself and describe your capabilities.',
+      onToken: (text) => appendOutput(agent.id, text),
+      onStatusChange: (status) => updateAgentStatus(agent.id, status),
+      onComplete: (output, tokenCount) => {
+        updateAgentStatus(agent.id, 'completed', output)
+        setTokenCount(agent.id, tokenCount)
+      },
+      onError: (error) => updateAgentStatus(agent.id, 'error', error),
+      signal: controller.signal,
+    }).finally(() => {
+      setRunning(false)
+      abortRef.current = null
+    })
+  }, [nodes, agents, setRunning, updateAgentStatus, appendOutput, setTokenCount])
+
+  // ── Stop workflow ───────────────────────────────────────────────────
+  const handleStop = useCallback(() => {
+    abortRef.current?.abort()
+    setRunning(false)
+  }, [setRunning])
+
   return (
     <div className="flex h-10 items-center border-b border-neutral-800 bg-neutral-900 px-3">
       {/* Left: workflow selector */}
@@ -176,8 +225,15 @@ export default function WorkflowToolbar() {
         </button>
       </div>
 
-      {/* Right: reserved for M3 Run button */}
-      <div className="ml-auto" />
+      {/* Right: run / stop */}
+      <div className="ml-auto">
+        <RunButton
+          onRun={handleRun}
+          onStop={handleStop}
+          isRunning={isRunning}
+          disabled={!activeWorkflowId || nodes.length === 0}
+        />
+      </div>
     </div>
   )
 }
