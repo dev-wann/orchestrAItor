@@ -70,17 +70,25 @@ Mac-native Multi-Agent AI Orchestration Platform built with Tauri v2 + React + T
 
 ## Development Flow
 
-### 코드 작성 → 리뷰 → PR 루프
+### 코드 작성 루프 (커밋 단위)
 1. **Write**: 코드 작성 (의미 있는 단위에서 서브에이전트 병렬 활용)
 2. **Review**: `/review` 로 풀스택 코드 리뷰 (Rust + TypeScript 모두 커버)
 3. **Fix**: 리뷰 피드백 반영
 4. **Pre-commit**: `/pre-commit` 으로 커밋 전 최종 체크
 5. **Commit**: 통과 시 커밋
 6. **Log**: `/log` 로 작업 기록 업데이트
-7. **PR**: PR 범위 작업 완료 시 `/write-pr` 로 PR 생성
+
+### PR 루프 (PR 단위)
+1. **Create**: PR 범위 작업 완료 시 `/write-pr` 로 PR 생성
+2. **PR Review**: 서브에이전트로 리뷰어 실행 → PR에 인라인 코멘트 + 전체 리뷰 작성
+3. **Fix**: Critical/Warning 이슈 수정, 커밋 & push
+4. **Reply**: 각 리뷰 코멘트에 답글 (수정 완료 / 수용 / 후순위 사유)
+5. **Log**: work-logs에 리뷰 피드백 테이블 기록
+6. **Merge**: 사용자 승인 후 머지, PR Plan 상태 업데이트
 
 ### 서브에이전트 활용 원칙
-- **병렬화**: 독립적인 파일/모듈 작업만 병렬 실행 (예: 스토어 3개 동시 작성)
+- **병렬 코딩**: 독립적인 파일/모듈 작업만 병렬 실행 (예: 스토어 3개 동시 작성)
+- **PR 리뷰어**: PR 생성 후 서브에이전트로 리뷰 실행. diff 분석 → PR에 직접 코멘트 작성
 - **순차 실행**: 의존성 있는 작업은 순서대로 (예: 코드 → 리뷰)
 - **직접 처리**: 설정 파일, 1파일 수정 등 사소한 작업은 메인에서 직접
 
@@ -103,7 +111,7 @@ See `docs/M0_KICKOFF.md` for detailed task list and `docs/PRD.md` for full produ
 
 | PR | 브랜치 | 범위 | 상태 |
 |----|--------|------|------|
-| PR1 | `feat/m0-scaffold` | 프로젝트 초기화 + 의존성 + Tailwind 설정 | [PR #1](https://github.com/dev-wann/orchestrAItor/pull/1) |
+| PR1 | `feat/m0-scaffold` | 프로젝트 초기화 + 의존성 + Tailwind 설정 | merged |
 | PR2 | `feat/m0-sqlite` | SQLite 스키마 마이그레이션 + Rust DB CRUD 커맨드 + 프론트 DB 훅 | 대기 |
 | PR3 | `feat/m0-window` | 트레이 + Floating 윈도우 + 윈도우 전환 커맨드 | 대기 |
 | PR4 | `feat/m0-ui` | Zustand 스토어 + 레이아웃 컴포넌트 + 앱 연결 | 대기 |
