@@ -98,9 +98,9 @@ Mac-native Multi-Agent AI Orchestration Platform built with Tauri v2 + React + T
 - `/log` — work-logs 작업 기록 생성/업데이트
 - `/write-pr` — PR 분석, 작성, push, 생성까지 일괄 수행
 
-## Current Phase: M0 (Foundation)
+## Current Phase: M1 (Provider & Agent CRUD)
 
-See `docs/M0_KICKOFF.md` for detailed task list and `docs/PRD.md` for full product spec.
+See `docs/PRD.md` for full product spec.
 
 ### Prerequisites
 - Rust toolchain (rustup + cargo)
@@ -109,9 +109,19 @@ See `docs/M0_KICKOFF.md` for detailed task list and `docs/PRD.md` for full produ
 
 ### PR Plan
 
+**M0 (Foundation)** — all merged
+
 | PR | 브랜치 | 범위 | 상태 |
 |----|--------|------|------|
 | PR1 | `feat/m0-scaffold` | 프로젝트 초기화 + 의존성 + Tailwind 설정 | merged |
 | PR2 | `feat/m0-sqlite` | SQLite 스키마 마이그레이션 + Rust DB CRUD 커맨드 + 프론트 DB 훅 | merged |
 | PR3 | `feat/m0-window` | 트레이 + Floating 윈도우 + 윈도우 전환 커맨드 | merged |
 | PR4 | `feat/m0-ui` | Zustand 스토어 + 레이아웃 컴포넌트 + 앱 연결 | merged |
+
+**M1 (Provider & Agent CRUD)**
+
+| PR | 브랜치 | 범위 | 상태 |
+|----|--------|------|------|
+| PR5 | `feat/m1-provider-keys` | Rust keyring 크레이트 + API Key CRUD 커맨드 + 프로바이더 설정 UI | 대기 |
+| PR6 | `feat/m1-agent-crud` | 에이전트 추가/편집/삭제 UI + DB 연동 | 대기 |
+| PR7 | `feat/m1-model-fetch` | 프로바이더별 모델 목록 fetch + 모델 선택 UI | 대기 |
