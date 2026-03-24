@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import type { Agent, Provider } from '../../types/database'
 
 // ── Types ──────────────────────────────────────────────────────────────
@@ -25,22 +25,25 @@ const PROVIDER_OPTIONS: { value: Provider; label: string }[] = [
   { value: 'ollama', label: 'Ollama' },
 ]
 
-const COLOR_PRESETS = [
-  '#6366f1',
-  '#ec4899',
-  '#f59e0b',
-  '#10b981',
-  '#3b82f6',
-  '#ef4444',
+const COLOR_PRESETS: { hex: string; name: string }[] = [
+  { hex: '#6366f1', name: 'Indigo' },
+  { hex: '#ec4899', name: 'Pink' },
+  { hex: '#f59e0b', name: 'Amber' },
+  { hex: '#10b981', name: 'Emerald' },
+  { hex: '#3b82f6', name: 'Blue' },
+  { hex: '#ef4444', name: 'Red' },
 ]
+
+const VALID_PROVIDERS = new Set<string>(PROVIDER_OPTIONS.map((o) => o.value))
 
 // ── Component ──────────────────────────────────────────────────────────
 export default function AgentForm({ agent, onSubmit, onCancel, isSubmitting = false }: AgentFormProps) {
+  const formId = useId()
   const [name, setName] = useState(agent?.name ?? '')
   const [provider, setProvider] = useState<Provider>(agent?.provider ?? 'anthropic')
   const [model, setModel] = useState(agent?.model ?? '')
   const [systemPrompt, setSystemPrompt] = useState(agent?.system_prompt ?? '')
-  const [color, setColor] = useState(agent?.color ?? COLOR_PRESETS[0])
+  const [color, setColor] = useState(agent?.color ?? COLOR_PRESETS[0].hex)
 
   const isEditing = !!agent
 
@@ -73,11 +76,11 @@ export default function AgentForm({ agent, onSubmit, onCancel, isSubmitting = fa
 
       {/* Name */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="agent-name" className="text-xs font-medium text-neutral-400">
+        <label htmlFor={`${formId}-name`} className="text-xs font-medium text-neutral-400">
           Name
         </label>
         <input
-          id="agent-name"
+          id={`${formId}-name`}
           type="text"
           placeholder="Agent name"
           value={name}
@@ -89,13 +92,16 @@ export default function AgentForm({ agent, onSubmit, onCancel, isSubmitting = fa
 
       {/* Provider */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="agent-provider" className="text-xs font-medium text-neutral-400">
+        <label htmlFor={`${formId}-provider`} className="text-xs font-medium text-neutral-400">
           Provider
         </label>
         <select
-          id="agent-provider"
+          id={`${formId}-provider`}
           value={provider}
-          onChange={(e) => setProvider(e.target.value as Provider)}
+          onChange={(e) => {
+            const val = e.target.value
+            if (VALID_PROVIDERS.has(val)) setProvider(val as Provider)
+          }}
           className={inputClassName}
         >
           {PROVIDER_OPTIONS.map((opt) => (
@@ -108,11 +114,11 @@ export default function AgentForm({ agent, onSubmit, onCancel, isSubmitting = fa
 
       {/* Model */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="agent-model" className="text-xs font-medium text-neutral-400">
+        <label htmlFor={`${formId}-model`} className="text-xs font-medium text-neutral-400">
           Model
         </label>
         <input
-          id="agent-model"
+          id={`${formId}-model`}
           type="text"
           placeholder="e.g. claude-sonnet-4-20250514"
           value={model}
@@ -124,11 +130,11 @@ export default function AgentForm({ agent, onSubmit, onCancel, isSubmitting = fa
 
       {/* System Prompt */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="agent-system-prompt" className="text-xs font-medium text-neutral-400">
+        <label htmlFor={`${formId}-system-prompt`} className="text-xs font-medium text-neutral-400">
           System Prompt
         </label>
         <textarea
-          id="agent-system-prompt"
+          id={`${formId}-system-prompt`}
           placeholder="Instructions for the agent..."
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
@@ -143,14 +149,14 @@ export default function AgentForm({ agent, onSubmit, onCancel, isSubmitting = fa
         <div className="flex gap-2">
           {COLOR_PRESETS.map((preset) => (
             <button
-              key={preset}
+              key={preset.hex}
               type="button"
-              onClick={() => setColor(preset)}
-              aria-label={`Select color ${preset}`}
+              onClick={() => setColor(preset.hex)}
+              aria-label={`Select ${preset.name}`}
               className={`h-6 w-6 rounded-full transition-all ${
-                color === preset ? 'ring-2 ring-white ring-offset-2 ring-offset-neutral-900' : ''
+                color === preset.hex ? 'ring-2 ring-white ring-offset-2 ring-offset-neutral-900' : ''
               }`}
-              style={{ backgroundColor: preset }}
+              style={{ backgroundColor: preset.hex }}
             />
           ))}
         </div>

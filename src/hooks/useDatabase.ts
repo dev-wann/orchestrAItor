@@ -133,11 +133,12 @@ export function useUpdateAgent() {
     mutationFn: async ({ id, name, provider, model, systemPrompt, color }: UpdateAgentVars) => {
       try {
         const db = await getDb()
-        await db.execute(
+        const result = await db.execute(
           `UPDATE agents SET name = $1, provider = $2, model = $3, system_prompt = $4, color = $5, updated_at = datetime('now')
            WHERE id = $6`,
           [name, provider, model, systemPrompt, color, id],
         )
+        if (result.rowsAffected === 0) throw new Error(`Agent not found: ${id}`)
       } catch (error) {
         console.error('[useUpdateAgent] Failed to update agent:', error)
         throw error
@@ -162,7 +163,8 @@ export function useDeleteAgent() {
     mutationFn: async ({ id }: DeleteAgentVars) => {
       try {
         const db = await getDb()
-        await db.execute('DELETE FROM agents WHERE id = $1', [id])
+        const result = await db.execute('DELETE FROM agents WHERE id = $1', [id])
+        if (result.rowsAffected === 0) throw new Error(`Agent not found: ${id}`)
       } catch (error) {
         console.error('[useDeleteAgent] Failed to delete agent:', error)
         throw error

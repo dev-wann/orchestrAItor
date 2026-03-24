@@ -30,7 +30,7 @@ export default function Sidebar() {
           <p className="px-2 py-8 text-center text-sm text-neutral-500">
             Loading...
           </p>
-        ) : agents.length === 0 && !showForm ? (
+        ) : agents.length === 0 ? (
           <p className="px-2 py-8 text-center text-sm text-neutral-500">
             No agents yet
           </p>

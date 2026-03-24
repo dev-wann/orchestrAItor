@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
-import type { Agent } from '../../types/database'
+import type { Agent, Provider } from '../../types/database'
 import { useUpdateAgent, useDeleteAgent } from '../../hooks/useDatabase'
 import AgentForm from './AgentForm'
 import type { AgentFormData } from './AgentForm'
@@ -10,7 +10,7 @@ interface AgentDetailProps {
   onDeleted?: () => void
 }
 
-const PROVIDER_LABELS: Record<string, string> = {
+const PROVIDER_LABELS: Record<Provider, string> = {
   anthropic: 'Anthropic',
   openai: 'OpenAI',
   google: 'Google',
