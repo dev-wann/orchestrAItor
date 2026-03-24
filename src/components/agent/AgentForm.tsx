@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
 import type { Agent, Provider } from '../../types/database'
+import { useModels } from '../../hooks/useModels'
 
 // ── Types ──────────────────────────────────────────────────────────────
 export interface AgentFormData {
@@ -44,6 +45,9 @@ export default function AgentForm({ agent, onSubmit, onCancel, isSubmitting = fa
   const [model, setModel] = useState(agent?.model ?? '')
   const [systemPrompt, setSystemPrompt] = useState(agent?.system_prompt ?? '')
   const [color, setColor] = useState(agent?.color ?? COLOR_PRESETS[0].hex)
+
+  const { data: models, isLoading: isLoadingModels } = useModels(provider)
+  const hasModels = !!models && models.length > 0
 
   const isEditing = !!agent
 
@@ -100,7 +104,10 @@ export default function AgentForm({ agent, onSubmit, onCancel, isSubmitting = fa
           value={provider}
           onChange={(e) => {
             const val = e.target.value
-            if (VALID_PROVIDERS.has(val)) setProvider(val as Provider)
+            if (VALID_PROVIDERS.has(val)) {
+              setProvider(val as Provider)
+              setModel('')
+            }
           }}
           className={inputClassName}
         >
@@ -117,15 +124,38 @@ export default function AgentForm({ agent, onSubmit, onCancel, isSubmitting = fa
         <label htmlFor={`${formId}-model`} className="text-xs font-medium text-neutral-400">
           Model
         </label>
-        <input
-          id={`${formId}-model`}
-          type="text"
-          placeholder="e.g. claude-sonnet-4-20250514"
-          value={model}
-          onChange={(e) => setModel(e.target.value)}
-          className={inputClassName}
-          required
-        />
+        {isLoadingModels ? (
+          <div className={`${inputClassName} flex items-center text-neutral-500`}>
+            Loading models...
+          </div>
+        ) : hasModels ? (
+          <select
+            id={`${formId}-model`}
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+            className={inputClassName}
+            required
+          >
+            <option value="" disabled>
+              Select a model
+            </option>
+            {models.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            id={`${formId}-model`}
+            type="text"
+            placeholder="e.g. claude-sonnet-4-20250514"
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+            className={inputClassName}
+            required
+          />
+        )}
       </div>
 
       {/* System Prompt */}
