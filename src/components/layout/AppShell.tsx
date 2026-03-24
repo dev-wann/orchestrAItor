@@ -13,9 +13,13 @@ export default function AppShell() {
       <TitleBar />
 
       <div className="flex flex-1 min-h-0">
-        {sidebarOpen && <Sidebar />}
+        <div className={sidebarOpen ? '' : 'hidden'}>
+          <Sidebar />
+        </div>
         <Canvas />
-        {panelOpen && <Panel />}
+        <div className={panelOpen ? '' : 'hidden'}>
+          <Panel />
+        </div>
       </div>
     </div>
   )

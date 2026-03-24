@@ -4,7 +4,14 @@ import AppShell from "./components/layout/AppShell";
 import FloatingWindow from "./components/layout/FloatingWindow";
 import "./App.css";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 30,
+      retry: 1,
+    },
+  },
+});
 
 const windowLabel = getCurrentWebviewWindow().label;
 

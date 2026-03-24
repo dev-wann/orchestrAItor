@@ -1,8 +1,8 @@
 import { Plus } from 'lucide-react'
+import type { Agent } from '../../types/database'
 
 export default function Sidebar() {
-  // TODO: connect useAgents() hook in future milestone
-  const agents: never[] = []
+  const agents: Agent[] = []
 
   return (
     <aside className="w-64 flex flex-col bg-neutral-900 border-r border-neutral-800">

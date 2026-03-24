@@ -46,6 +46,9 @@ export interface AgentLog {
   created_at: string
 }
 
+// ── UI ──────────────────────────────────────────────────────────────
+export type UIMode = 'menubar' | 'floating' | 'both'
+
 // ── App Setting ──────────────────────────────────────────────────────
 export interface AppSetting {
   key: string

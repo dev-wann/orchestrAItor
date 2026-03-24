@@ -1,6 +1,5 @@
 import { create } from 'zustand'
-
-type UIMode = 'menubar' | 'floating' | 'both'
+import type { UIMode } from '../types/database'
 
 interface UIStore {
   uiMode: UIMode
