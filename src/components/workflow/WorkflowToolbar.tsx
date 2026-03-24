@@ -12,7 +12,7 @@ import {
 import type { Workflow } from '../../types/database'
 import type { AgentNodeData } from './AgentNode'
 import RunButton from './RunButton'
-import { runAgent } from '../../lib/agentRunner'
+import { executeWorkflow } from '../../lib/dagEngine'
 
 interface WorkflowGraph {
   nodes: Node<AgentNodeData>[]
@@ -136,36 +136,61 @@ export default function WorkflowToolbar() {
     setEdges,
   ])
 
-  // ── Run workflow ──────────────────────────────────────────────────
+  // ── Run workflow (DAG execution) ──────────────────────────────────
   const handleRun = useCallback(() => {
-    const firstAgentNode = nodes.find((n) => n.type === 'agent')
-    if (!firstAgentNode) return
-
-    const agentData = firstAgentNode.data as AgentNodeData
-    const agent = agents.find((a) => a.name === agentData.label)
-    if (!agent) return
+    if (nodes.length === 0) return
 
     const controller = new AbortController()
     abortRef.current = controller
 
     setRunning(true)
 
-    void runAgent({
-      agent,
-      input: 'Hello, please introduce yourself and describe your capabilities.',
-      onToken: (text) => appendOutput(agent.id, text),
-      onStatusChange: (status) => updateAgentStatus(agent.id, status),
-      onComplete: (output, tokenCount) => {
-        updateAgentStatus(agent.id, 'completed', output)
-        setTokenCount(agent.id, tokenCount)
+    void executeWorkflow(nodes, edges, {
+      getAgentForNode: (nodeId) => {
+        const node = nodes.find((n) => n.id === nodeId)
+        if (!node) return undefined
+        const data = node.data as AgentNodeData
+        return agents.find((a) => a.name === data.label)
       },
-      onError: (error) => updateAgentStatus(agent.id, 'error', error),
+      onNodeStart: (nodeId) => {
+        const node = nodes.find((n) => n.id === nodeId)
+        if (!node) return
+        const data = node.data as AgentNodeData
+        const agent = agents.find((a) => a.name === data.label)
+        if (agent) updateAgentStatus(agent.id, 'running', '')
+      },
+      onNodeToken: (nodeId, text) => {
+        const node = nodes.find((n) => n.id === nodeId)
+        if (!node) return
+        const data = node.data as AgentNodeData
+        const agent = agents.find((a) => a.name === data.label)
+        if (agent) appendOutput(agent.id, text)
+      },
+      onNodeComplete: (nodeId, output, tokenCount) => {
+        const node = nodes.find((n) => n.id === nodeId)
+        if (!node) return
+        const data = node.data as AgentNodeData
+        const agent = agents.find((a) => a.name === data.label)
+        if (agent) {
+          updateAgentStatus(agent.id, 'completed', output)
+          setTokenCount(agent.id, tokenCount)
+        }
+      },
+      onNodeError: (nodeId, error) => {
+        const node = nodes.find((n) => n.id === nodeId)
+        if (!node) return
+        const data = node.data as AgentNodeData
+        const agent = agents.find((a) => a.name === data.label)
+        if (agent) updateAgentStatus(agent.id, 'error', error)
+      },
+      onWorkflowComplete: () => {},
+      onWorkflowError: (error) => console.error('[Workflow]', error),
       signal: controller.signal,
     }).finally(() => {
       setRunning(false)
       abortRef.current = null
     })
-  }, [nodes, agents, setRunning, updateAgentStatus, appendOutput, setTokenCount])
+  }, [nodes, edges, agents, setRunning, updateAgentStatus, appendOutput, setTokenCount])
 
   // ── Stop workflow ───────────────────────────────────────────────────
   const handleStop = useCallback(() => {
