@@ -113,5 +113,5 @@ See `docs/M0_KICKOFF.md` for detailed task list and `docs/PRD.md` for full produ
 |----|--------|------|------|
 | PR1 | `feat/m0-scaffold` | 프로젝트 초기화 + 의존성 + Tailwind 설정 | merged |
 | PR2 | `feat/m0-sqlite` | SQLite 스키마 마이그레이션 + Rust DB CRUD 커맨드 + 프론트 DB 훅 | merged |
-| PR3 | `feat/m0-window` | 트레이 + Floating 윈도우 + 윈도우 전환 커맨드 | 대기 |
+| PR3 | `feat/m0-window` | 트레이 + Floating 윈도우 + 윈도우 전환 커맨드 | merged |
 | PR4 | `feat/m0-ui` | Zustand 스토어 + 레이아웃 컴포넌트 + 앱 연결 | 대기 |
