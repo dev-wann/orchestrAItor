@@ -35,9 +35,20 @@ Mac-native Multi-Agent AI Orchestration Platform built with Tauri v2 + React + T
 - PR 본문에 변경사항 요약 + 테스트 계획 포함
 - `main` ← feature branch 머지
 
-### 작업 기록
-- `work-logs/` 폴더에 작업 단위마다 진행상황 기록
-- 파일명: `{마일스톤}-{번호}_{작업명}.md` (예: `M0-001_project-setup.md`)
+### 작업 기록 (`work-logs/`)
+
+작업 기록은 PR 단위로 1개 파일을 생성하고, 작업 진행에 따라 업데이트한다.
+
+**파일명**: `{마일스톤}-{번호}_{작업명}.md` (예: `M0-001_project-scaffold.md`)
+
+**기록 시점**:
+- PR 작업 시작 시 → 새 로그 파일 생성 (목표, 예정 작업 목록)
+- 의미 있는 커밋마다 → 체크리스트 업데이트, 커밋 이력 추가
+- PR 완료 시 → 상태를 "완료"로, 최종 메모 정리
+
+**기록 방법**: `/log` 스킬 실행, 또는 수동 편집
+
+**번호 규칙**: 마일스톤 내 순번. `M0-001`, `M0-002`, ... PR과 1:1 대응.
 
 ## Development Flow
 
