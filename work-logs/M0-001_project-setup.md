@@ -1,34 +1,32 @@
-# M0-001: 프로젝트 초기 설정
+# M0-001: 프로젝트 스캐폴딩
 
 - **날짜**: 2026-03-24
 - **마일스톤**: M0 (기반 구축)
+- **브랜치**: feat/m0-scaffold
 - **상태**: 진행 중
 
 ## 작업 내용
 
 ### 완료
-- [x] 프로젝트 루트 디렉토리 생성 (`/Users/carlcho/Dev/orchestraitor/`)
-- [x] `docs/PRD.md` — PRD v0.2 전문 저장
-- [x] `docs/M0_KICKOFF.md` — M0 킥오프 프롬프트 저장
-- [x] `CLAUDE.md` — Claude Code 컨텍스트 파일 생성
-- [x] `work-logs/` 폴더 생성 및 작업 로그 시작
+- [x] Rust 툴체인 설치 (rustc 1.94.0)
+- [x] Git 초기화 + 로컬 유저 설정 (dev-wann)
+- [x] Tauri v2 + React + TS 프로젝트 스캐폴딩
+- [x] docs/PRD.md, docs/M0_KICKOFF.md 저장
+- [x] CLAUDE.md — 컨벤션, Git 워크플로우, Dev Flow 정의
+- [x] 로컬 스킬 생성 (/review, /pre-commit, /log)
 
 ### 진행 예정
-- [ ] Rust 툴체인 설치 (rustup)
-- [ ] Tauri v2 프로젝트 초기화
-- [ ] 의존성 설치
-- [ ] SQLite 스키마 생성
-- [ ] Zustand 스토어 구현
-- [ ] Tauri 윈도우 설정
-- [ ] 레이아웃 컴포넌트 생성
-- [ ] Rust 커맨드 구현
-- [ ] 빌드 확인
+- [ ] Frontend 의존성 추가 (zustand, tailwindcss 등)
+- [ ] Tauri 플러그인 추가 (sql, notification, single-instance)
+- [ ] Tailwind CSS v4 설정
+- [ ] 빌드 확인 (`pnpm tauri dev`)
 
-## 블로커
-
-- **Rust 미설치**: `rustc`/`cargo` 명령어를 찾을 수 없음. `rustup` 설치 필요.
+## 커밋 이력
+- 6578662 chore: scaffold Tauri v2 + React + TypeScript project
+- 860915d docs: add PRD, kickoff prompt, and project docs
+- e7d3e98 chore: add local skills and development flow
+- 70d72a8 docs: clarify work-logs process in CLAUDE.md
 
 ## 메모
-- pnpm 10.28.2 확인됨
-- Node.js v20.11.0 확인됨
-- Rust 설치 후 작업 재개
+- pnpm 10.28.2, Node.js v20.11.0, Rust 1.94.0
+- React 19로 스캐폴딩됨 (템플릿 기본값)

@@ -2,6 +2,24 @@
 
 Mac-native Multi-Agent AI Orchestration Platform built with Tauri v2 + React + TypeScript.
 
+## Session Start Checklist
+
+새 세션 시작 시 반드시 아래 순서로 상태를 파악한다:
+
+1. `git config user.name && git config user.email` — Git identity 확인 (없으면 로컬 설정)
+2. `git branch && git log --oneline -5` — 현재 브랜치와 최근 커밋 확인
+3. `work-logs/` 최신 파일 읽기 — 마지막 작업 상태, 남은 TODO 파악
+4. 아래 PR Plan 테이블에서 현재 진행 중인 PR 확인
+5. 미완료 작업부터 이어서 진행
+
+## Git Identity (local)
+
+이 프로젝트에서 사용하는 Git 계정:
+- **name**: dev-wann
+- **email**: swcho8220@gmail.com
+
+세션 시작 시 `git config user.email`이 위와 다르면 로컬 설정할 것.
+
 ## Tech Stack
 - **Runtime**: Tauri v2 (Rust backend + WebView frontend)
 - **Frontend**: React 18 + TypeScript + Vite
@@ -71,4 +89,19 @@ Mac-native Multi-Agent AI Orchestration Platform built with Tauri v2 + React + T
 - `/log` — work-logs 작업 기록 생성/업데이트
 
 ## Current Phase: M0 (Foundation)
+
 See `docs/M0_KICKOFF.md` for detailed task list and `docs/PRD.md` for full product spec.
+
+### Prerequisites
+- Rust toolchain (rustup + cargo)
+- Node.js >= 20
+- pnpm
+
+### PR Plan
+
+| PR | 브랜치 | 범위 | 상태 |
+|----|--------|------|------|
+| PR1 | `feat/m0-scaffold` | 프로젝트 초기화 + 의존성 + Tailwind 설정 | 진행 중 |
+| PR2 | `feat/m0-sqlite` | SQLite 스키마 + Rust DB 커맨드 + 프론트 DB 훅 | 대기 |
+| PR3 | `feat/m0-window` | 트레이 + Floating 윈도우 + 윈도우 전환 커맨드 | 대기 |
+| PR4 | `feat/m0-ui` | Zustand 스토어 + 레이아웃 컴포넌트 + 앱 연결 | 대기 |
