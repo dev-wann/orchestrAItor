@@ -1,10 +1,25 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+import AppShell from "./components/layout/AppShell";
+import FloatingWindow from "./components/layout/FloatingWindow";
 import "./App.css";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 30,
+      retry: 1,
+    },
+  },
+});
+
+const windowLabel = getCurrentWebviewWindow().label;
 
 function App() {
   return (
-    <main className="flex items-center justify-center h-screen bg-neutral-900 text-white">
-      <h1 className="text-2xl font-bold">orchestrAItor</h1>
-    </main>
+    <QueryClientProvider client={queryClient}>
+      {windowLabel === "floating" ? <FloatingWindow /> : <AppShell />}
+    </QueryClientProvider>
   );
 }
 
