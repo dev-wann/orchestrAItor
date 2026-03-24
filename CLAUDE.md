@@ -138,5 +138,5 @@ See `docs/PRD.md` for full product spec.
 | PR | 브랜치 | 범위 | 상태 |
 |----|--------|------|------|
 | PR10 | `feat/m3-agent-run` | Anthropic SDK + 단일 에이전트 스트리밍 실행 + 실시간 UI | merged |
-| PR11 | `feat/m3-dag-engine` | DAG 실행 엔진 (토폴로지 정렬, 순차/병렬, 출력 체이닝) | 대기 |
+| PR11 | `feat/m3-dag-engine` | DAG 실행 엔진 (토폴로지 정렬, 순차/병렬, 출력 체이닝) | merged |
 | PR12 | `feat/m3-approval` | Human-in-the-loop 승인 흐름 + macOS 알림 | 대기 |
