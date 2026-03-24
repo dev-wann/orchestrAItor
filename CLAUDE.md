@@ -98,7 +98,7 @@ Mac-native Multi-Agent AI Orchestration Platform built with Tauri v2 + React + T
 - `/log` — work-logs 작업 기록 생성/업데이트
 - `/write-pr` — PR 분석, 작성, push, 생성까지 일괄 수행
 
-## Current Phase: M2 (Workflow Editor)
+## Current Phase: M3 (Execution Engine)
 
 See `docs/PRD.md` for full product spec.
 
@@ -126,9 +126,17 @@ See `docs/PRD.md` for full product spec.
 | PR6 | `feat/m1-agent-crud` | 에이전트 추가/편집/삭제 UI + DB 연동 | merged |
 | PR7 | `feat/m1-model-fetch` | 프로바이더별 모델 목록 fetch + 모델 선택 UI | merged |
 
-**M2 (Workflow Editor)**
+**M2 (Workflow Editor)** — all merged
 
 | PR | 브랜치 | 범위 | 상태 |
 |----|--------|------|------|
 | PR8 | `feat/m2-react-flow` | React Flow 설치 + DAG 에디터 + 에이전트 노드 컴포넌트 | merged |
 | PR9 | `feat/m2-workflow-crud` | 워크플로우 CRUD (DB 저장/로딩) + 목록/선택 UI | merged |
+
+**M3 (Execution Engine)**
+
+| PR | 브랜치 | 범위 | 상태 |
+|----|--------|------|------|
+| PR10 | `feat/m3-agent-run` | Anthropic SDK + 단일 에이전트 스트리밍 실행 + 실시간 UI | 대기 |
+| PR11 | `feat/m3-dag-engine` | DAG 실행 엔진 (토폴로지 정렬, 순차/병렬, 출력 체이닝) | 대기 |
+| PR12 | `feat/m3-approval` | Human-in-the-loop 승인 흐름 + macOS 알림 | 대기 |
