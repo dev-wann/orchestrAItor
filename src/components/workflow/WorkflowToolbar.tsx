@@ -25,8 +25,10 @@ function parseGraph(workflow: Workflow): WorkflowGraph {
       'nodes' in parsed &&
       'edges' in parsed
     ) {
-      const graph = parsed as WorkflowGraph
-      return { nodes: graph.nodes ?? [], edges: graph.edges ?? [] }
+      const obj = parsed as Record<string, unknown>
+      const nodes = Array.isArray(obj.nodes) ? (obj.nodes as Node<AgentNodeData>[]) : []
+      const edges = Array.isArray(obj.edges) ? (obj.edges as Edge[]) : []
+      return { nodes, edges }
     }
   } catch {
     console.error(
@@ -53,6 +55,9 @@ export default function WorkflowToolbar() {
   const handleSelect = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const id = e.target.value || null
+      if (activeWorkflowId && nodes.length > 0) {
+        if (!window.confirm('Unsaved changes will be lost. Switch workflow?')) return
+      }
       setActiveWorkflow(id)
 
       if (id) {
