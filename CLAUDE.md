@@ -1,4 +1,4 @@
-# OrchestrAItor
+# orchestrAItor
 
 Mac-native Multi-Agent AI Orchestration Platform built with Tauri v2 + React + TypeScript.
 

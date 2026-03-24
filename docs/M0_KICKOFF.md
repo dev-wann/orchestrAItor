@@ -1,4 +1,4 @@
-# OrchestrAItor — M0 킥오프 프롬프트
+# orchestrAItor — M0 킥오프 프롬프트
 
 ## 역할 및 목표
 

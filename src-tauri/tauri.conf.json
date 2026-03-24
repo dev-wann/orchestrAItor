@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "OrchestrAItor",
+  "productName": "orchestrAItor",
   "version": "0.1.0",
   "identifier": "com.orchestraitor.app",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "OrchestrAItor",
+        "title": "orchestrAItor",
         "width": 800,
         "height": 600
       }

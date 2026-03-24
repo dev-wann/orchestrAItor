@@ -1,4 +1,4 @@
-# OrchestrAItor — PRD v0.2
+# orchestrAItor — PRD v0.2
 
 > **Mac-native Multi-Agent Orchestration Platform**
 > Status: Draft · 2026-03-24
