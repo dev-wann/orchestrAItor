@@ -16,6 +16,8 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
   animated: false,
 }
 
+const proOptions = { hideAttribution: true }
+
 export default function Canvas() {
   const nodes = useWorkflowStore((s) => s.nodes)
   const edges = useWorkflowStore((s) => s.edges)
@@ -26,7 +28,7 @@ export default function Canvas() {
   const nodeTypes = useMemo(() => ({ agent: AgentNode }), [])
 
   return (
-    <section className="flex-1 bg-neutral-950">
+    <section className="flex-1 min-h-0 bg-neutral-950">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -37,7 +39,7 @@ export default function Canvas() {
         defaultEdgeOptions={defaultEdgeOptions}
         fitView
         colorMode="dark"
-        proOptions={{ hideAttribution: true }}
+        proOptions={proOptions}
       >
         <Background
           variant={BackgroundVariant.Dots}

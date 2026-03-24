@@ -54,7 +54,7 @@ export const useWorkflowStore = create<WorkflowStore>((set, get) => ({
 
   addAgentNode: (agent, position) => {
     const newNode: Node<AgentNodeData> = {
-      id: `agent-${agent.id}`,
+      id: `agent-${agent.id}-${crypto.randomUUID().slice(0, 8)}`,
       type: 'agent',
       position,
       data: {
