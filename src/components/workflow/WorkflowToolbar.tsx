@@ -9,7 +9,7 @@ import {
   useSaveWorkflowGraph,
   useDeleteWorkflow,
 } from '../../hooks/useDatabase'
-import type { Workflow } from '../../types/database'
+import type { Agent, Workflow } from '../../types/database'
 import type { AgentNodeData } from './AgentNode'
 import RunButton from './RunButton'
 import { executeWorkflow } from '../../lib/dagEngine'
@@ -85,7 +85,7 @@ export default function WorkflowToolbar() {
         setEdges([])
       }
     },
-    [workflows, setActiveWorkflow, setNodes, setEdges],
+    [activeWorkflowId, nodes.length, workflows, setActiveWorkflow, setNodes, setEdges],
   )
 
   // ── New workflow ───────────────────────────────────────────────────
@@ -145,42 +145,34 @@ export default function WorkflowToolbar() {
 
     setRunning(true)
 
+    // Build nodeId → Agent cache to avoid repeated O(n) lookups
+    const agentByNode = new Map<string, Agent>()
+    for (const node of nodes) {
+      if (node.type !== 'agent') continue
+      const data = node.data as AgentNodeData
+      const agent = agents.find((a) => a.name === data.label)
+      if (agent) agentByNode.set(node.id, agent)
+    }
+
     void executeWorkflow(nodes, edges, {
-      getAgentForNode: (nodeId) => {
-        const node = nodes.find((n) => n.id === nodeId)
-        if (!node) return undefined
-        const data = node.data as AgentNodeData
-        return agents.find((a) => a.name === data.label)
-      },
+      getAgentForNode: (nodeId) => agentByNode.get(nodeId),
       onNodeStart: (nodeId) => {
-        const node = nodes.find((n) => n.id === nodeId)
-        if (!node) return
-        const data = node.data as AgentNodeData
-        const agent = agents.find((a) => a.name === data.label)
+        const agent = agentByNode.get(nodeId)
         if (agent) updateAgentStatus(agent.id, 'running', '')
       },
       onNodeToken: (nodeId, text) => {
-        const node = nodes.find((n) => n.id === nodeId)
-        if (!node) return
-        const data = node.data as AgentNodeData
-        const agent = agents.find((a) => a.name === data.label)
+        const agent = agentByNode.get(nodeId)
         if (agent) appendOutput(agent.id, text)
       },
       onNodeComplete: (nodeId, output, tokenCount) => {
-        const node = nodes.find((n) => n.id === nodeId)
-        if (!node) return
-        const data = node.data as AgentNodeData
-        const agent = agents.find((a) => a.name === data.label)
+        const agent = agentByNode.get(nodeId)
         if (agent) {
           updateAgentStatus(agent.id, 'completed', output)
           setTokenCount(agent.id, tokenCount)
         }
       },
       onNodeError: (nodeId, error) => {
-        const node = nodes.find((n) => n.id === nodeId)
-        if (!node) return
-        const data = node.data as AgentNodeData
-        const agent = agents.find((a) => a.name === data.label)
+        const agent = agentByNode.get(nodeId)
         if (agent) updateAgentStatus(agent.id, 'error', error)
       },
       onWorkflowComplete: () => {},

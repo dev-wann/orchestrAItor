@@ -18,34 +18,27 @@ const DEFAULT_START_PROMPT =
 
 const INPUT_SEPARATOR = '\n---\n'
 
-/**
- * Topological sort using Kahn's algorithm.
- * Returns an array of levels, where each level is an array of node IDs
- * that can be executed in parallel.
- *
- * Throws if a cycle is detected.
- */
 function topologicalSort(nodes: Node[], edges: Edge[]): string[][] {
   const nodeIds = new Set(nodes.map((n) => n.id))
 
-  // Build adjacency list and in-degree map
   const inDegree = new Map<string, number>()
-  const children = new Map<string, string[]>()
+  const children = new Map<string, Set<string>>()
 
   for (const id of nodeIds) {
     inDegree.set(id, 0)
-    children.set(id, [])
+    children.set(id, new Set())
   }
 
+  // Deduplicate edges by using Set for children
   for (const edge of edges) {
-    // Only consider edges whose endpoints are in the node set
     if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target)) continue
-
-    inDegree.set(edge.target, (inDegree.get(edge.target) ?? 0) + 1)
-    children.get(edge.source)!.push(edge.target)
+    const childSet = children.get(edge.source)!
+    if (!childSet.has(edge.target)) {
+      childSet.add(edge.target)
+      inDegree.set(edge.target, (inDegree.get(edge.target) ?? 0) + 1)
+    }
   }
 
-  // BFS — level by level
   const levels: string[][] = []
   let queue = Array.from(nodeIds).filter((id) => inDegree.get(id) === 0)
   let processedCount = 0
@@ -76,13 +69,6 @@ function topologicalSort(nodes: Node[], edges: Edge[]): string[][] {
   return levels
 }
 
-/**
- * Build the input text for a node by collecting the outputs of all
- * source nodes connected by incoming edges.
- *
- * If there are no incoming edges (start node), returns the default prompt.
- * Multiple inputs are joined with a separator.
- */
 function getInputForNode(
   nodeId: string,
   edges: Edge[],
@@ -105,23 +91,11 @@ function getInputForNode(
   return inputs.join(INPUT_SEPARATOR)
 }
 
-/**
- * Execute a DAG-based workflow.
- *
- * Nodes are sorted topologically into levels. All nodes within a level
- * run in parallel via Promise.all. Each node's output is chained as input
- * to downstream nodes.
- *
- * - A single node failure marks that node as error but does not abort sibling nodes.
- * - An AbortSignal abort stops the entire workflow.
- * - A cycle in the graph throws immediately.
- */
 export async function executeWorkflow(
   nodes: Node[],
   edges: Edge[],
   callbacks: DagExecutionCallbacks,
 ): Promise<void> {
-  // Validate inputs
   if (nodes.length === 0) {
     callbacks.onWorkflowComplete()
     return
@@ -138,10 +112,23 @@ export async function executeWorkflow(
   }
 
   const outputMap = new Map<string, string>()
+  const failedNodes = new Set<string>()
+
+  // Build parent map for failure propagation
+  const parentMap = new Map<string, string[]>()
+  for (const edge of edges) {
+    const parents = parentMap.get(edge.target) ?? []
+    parents.push(edge.source)
+    parentMap.set(edge.target, parents)
+  }
+
+  function hasFailedAncestor(nodeId: string): boolean {
+    const parents = parentMap.get(nodeId) ?? []
+    return parents.some((p) => failedNodes.has(p))
+  }
 
   try {
     for (const level of levels) {
-      // Check abort before starting each level
       if (callbacks.signal?.aborted) {
         callbacks.onWorkflowError('Workflow was cancelled')
         return
@@ -149,11 +136,18 @@ export async function executeWorkflow(
 
       await Promise.all(
         level.map(async (nodeId) => {
-          // Check abort before each individual node
           if (callbacks.signal?.aborted) return
+
+          // Skip nodes whose parent failed
+          if (hasFailedAncestor(nodeId)) {
+            failedNodes.add(nodeId)
+            callbacks.onNodeError(nodeId, 'Skipped: upstream node failed')
+            return
+          }
 
           const agent = callbacks.getAgentForNode(nodeId)
           if (!agent) {
+            failedNodes.add(nodeId)
             callbacks.onNodeError(nodeId, 'Agent not found for this node')
             return
           }
@@ -161,25 +155,29 @@ export async function executeWorkflow(
           const input = getInputForNode(nodeId, edges, outputMap)
           callbacks.onNodeStart(nodeId)
 
-          try {
-            await runAgent({
-              agent,
-              input,
-              onToken: (text) => callbacks.onNodeToken(nodeId, text),
-              onStatusChange: () => {
-                // Status is managed externally via callbacks
-              },
-              onComplete: (output, tokenCount) => {
-                outputMap.set(nodeId, output)
-                callbacks.onNodeComplete(nodeId, output, tokenCount)
-              },
-              onError: (error) => callbacks.onNodeError(nodeId, error),
-              signal: callbacks.signal,
-            })
-          } catch (err: unknown) {
-            const message =
-              err instanceof Error ? err.message : 'Unknown execution error'
-            callbacks.onNodeError(nodeId, message)
+          // Track whether this node errored via the onError callback
+          let nodeErrored = false
+
+          await runAgent({
+            agent,
+            input,
+            onToken: (text) => callbacks.onNodeToken(nodeId, text),
+            onStatusChange: () => {},
+            onComplete: (output, tokenCount) => {
+              outputMap.set(nodeId, output)
+              callbacks.onNodeComplete(nodeId, output, tokenCount)
+            },
+            onError: (error) => {
+              nodeErrored = true
+              failedNodes.add(nodeId)
+              callbacks.onNodeError(nodeId, error)
+            },
+            signal: callbacks.signal,
+          })
+
+          // If runAgent completed without calling onComplete, mark as failed
+          if (!nodeErrored && !outputMap.has(nodeId)) {
+            failedNodes.add(nodeId)
           }
         }),
       )
