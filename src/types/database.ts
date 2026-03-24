@@ -29,7 +29,7 @@ export interface Workflow {
   name: string
   /** JSON string: { nodes: [], edges: [] } */
   graph: string
-  is_active: number // SQLite stores booleans as 0 | 1
+  is_active: 0 | 1
   created_at: string
   updated_at: string
 }

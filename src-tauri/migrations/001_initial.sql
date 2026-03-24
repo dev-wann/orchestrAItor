@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS agents (
   id          TEXT PRIMARY KEY,
   name        TEXT NOT NULL,
-  provider    TEXT NOT NULL DEFAULT 'anthropic',
+  provider    TEXT NOT NULL DEFAULT 'anthropic'
+                CHECK(provider IN ('anthropic','openai','google','ollama')),
   model       TEXT NOT NULL,
   system_prompt TEXT NOT NULL DEFAULT '',
   color       TEXT NOT NULL DEFAULT '#6366f1',
@@ -30,6 +31,9 @@ CREATE TABLE IF NOT EXISTS agent_logs (
   payload     TEXT,
   created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_agent_logs_agent_id
+  ON agent_logs(agent_id, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS app_settings (
   key         TEXT PRIMARY KEY,
