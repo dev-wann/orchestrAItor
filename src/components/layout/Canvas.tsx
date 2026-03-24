@@ -9,6 +9,7 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import AgentNode from '../workflow/AgentNode'
+import WorkflowToolbar from '../workflow/WorkflowToolbar'
 import { useWorkflowStore } from '../../store/workflowStore'
 
 const defaultEdgeOptions: DefaultEdgeOptions = {
@@ -28,36 +29,39 @@ export default function Canvas() {
   const nodeTypes = useMemo(() => ({ agent: AgentNode }), [])
 
   return (
-    <section className="flex-1 min-h-0 bg-neutral-950">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-        defaultEdgeOptions={defaultEdgeOptions}
-        fitView
-        colorMode="dark"
-        proOptions={proOptions}
-      >
-        <Background
-          variant={BackgroundVariant.Dots}
-          color="#404040"
-          gap={20}
-          size={1}
-        />
-        <Controls
-          position="bottom-left"
-          className="!bg-neutral-800 !border-neutral-700 !shadow-lg [&>button]:!bg-neutral-800 [&>button]:!border-neutral-700 [&>button]:!text-neutral-300 [&>button:hover]:!bg-neutral-700"
-        />
-        <MiniMap
-          position="bottom-right"
-          nodeColor="#525252"
-          maskColor="rgba(0, 0, 0, 0.6)"
-          className="!bg-neutral-900 !border-neutral-700"
-        />
-      </ReactFlow>
+    <section className="flex-1 min-h-0 flex flex-col bg-neutral-950">
+      <WorkflowToolbar />
+      <div className="flex-1 min-h-0">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          defaultEdgeOptions={defaultEdgeOptions}
+          fitView
+          colorMode="dark"
+          proOptions={proOptions}
+        >
+          <Background
+            variant={BackgroundVariant.Dots}
+            color="#404040"
+            gap={20}
+            size={1}
+          />
+          <Controls
+            position="bottom-left"
+            className="!bg-neutral-800 !border-neutral-700 !shadow-lg [&>button]:!bg-neutral-800 [&>button]:!border-neutral-700 [&>button]:!text-neutral-300 [&>button:hover]:!bg-neutral-700"
+          />
+          <MiniMap
+            position="bottom-right"
+            nodeColor="#525252"
+            maskColor="rgba(0, 0, 0, 0.6)"
+            className="!bg-neutral-900 !border-neutral-700"
+          />
+        </ReactFlow>
+      </div>
     </section>
   )
 }
