@@ -1,15 +1,8 @@
 use keyring::Entry;
 
-const SERVICE_NAME: &str = "com.orchestraitor.app";
-const VALID_PROVIDERS: &[&str] = &["anthropic", "openai", "google", "ollama"];
+use super::validate_provider;
 
-fn validate_provider(provider: &str) -> Result<(), String> {
-    if VALID_PROVIDERS.contains(&provider) {
-        Ok(())
-    } else {
-        Err(format!("invalid provider: {provider}"))
-    }
-}
+const SERVICE_NAME: &str = "com.orchestraitor.app";
 
 fn get_entry(provider: &str) -> Result<Entry, String> {
     validate_provider(provider)?;

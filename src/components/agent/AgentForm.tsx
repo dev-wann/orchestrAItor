@@ -125,7 +125,7 @@ export default function AgentForm({ agent, onSubmit, onCancel, isSubmitting = fa
           Model
         </label>
         {isLoadingModels ? (
-          <div className={`${inputClassName} flex items-center text-neutral-500`}>
+          <div role="status" aria-live="polite" className={`${inputClassName} flex items-center text-neutral-500`}>
             Loading models...
           </div>
         ) : hasModels ? (

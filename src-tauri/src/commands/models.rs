@@ -1,4 +1,8 @@
+use std::time::Duration;
+
 use serde::Serialize;
+
+use super::validate_provider;
 
 #[derive(Serialize)]
 pub struct ModelInfo {
@@ -6,21 +10,18 @@ pub struct ModelInfo {
     pub name: String,
 }
 
-const VALID_PROVIDERS: &[&str] = &["anthropic", "openai", "google", "ollama"];
-
-fn validate_provider(provider: &str) -> Result<(), String> {
-    if VALID_PROVIDERS.contains(&provider) {
-        Ok(())
-    } else {
-        Err(format!("invalid provider: {provider}"))
-    }
-}
-
 fn require_api_key(api_key: &Option<String>, provider: &str) -> Result<String, String> {
     api_key
         .clone()
         .filter(|k| !k.is_empty())
         .ok_or_else(|| format!("API key is required for {provider}"))
+}
+
+fn http_client() -> Result<reqwest::Client, String> {
+    reqwest::Client::builder()
+        .timeout(Duration::from_secs(10))
+        .build()
+        .map_err(|e| format!("failed to build HTTP client: {e}"))
 }
 
 fn hardcoded_anthropic() -> Vec<ModelInfo> {
@@ -57,8 +58,14 @@ fn hardcoded_google() -> Vec<ModelInfo> {
     ]
 }
 
+const OPENAI_CHAT_PREFIXES: &[&str] = &["gpt-", "o1", "o3", "chatgpt-"];
+
+fn is_openai_chat_model(id: &str) -> bool {
+    OPENAI_CHAT_PREFIXES.iter().any(|p| id.starts_with(p))
+}
+
 async fn fetch_openai_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
-    let client = reqwest::Client::new();
+    let client = http_client()?;
     let resp = client
         .get("https://api.openai.com/v1/models")
         .header("Authorization", format!("Bearer {api_key}"))
@@ -80,7 +87,7 @@ async fn fetch_openai_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
         .iter()
         .filter_map(|m| {
             let id = m["id"].as_str()?;
-            if id.contains("gpt") {
+            if is_openai_chat_model(id) {
                 Some(ModelInfo {
                     id: id.to_string(),
                     name: id.to_string(),
@@ -96,7 +103,7 @@ async fn fetch_openai_models(api_key: &str) -> Result<Vec<ModelInfo>, String> {
 }
 
 async fn fetch_ollama_models() -> Result<Vec<ModelInfo>, String> {
-    let client = reqwest::Client::new();
+    let client = http_client()?;
     let resp = client
         .get("http://localhost:11434/api/tags")
         .send()

@@ -35,8 +35,7 @@ export function useModels(provider: Provider | '') {
         try {
           apiKey = await invoke<string>('get_api_key', { provider })
         } catch {
-          // No API key stored — cannot fetch models
-          return []
+          throw new Error('OpenAI API key not configured. Set it in Provider Settings.')
         }
       }
 
