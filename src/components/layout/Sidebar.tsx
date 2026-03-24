@@ -2,16 +2,25 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useAgents, useCreateAgent } from '../../hooks/useDatabase'
 import { useUIStore } from '../../store/uiStore'
+import { useWorkflowStore } from '../../store/workflowStore'
 import AgentCard from '../agent/AgentCard'
 import AgentForm from '../agent/AgentForm'
 import type { AgentFormData } from '../agent/AgentForm'
+import type { Agent } from '../../types/database'
 
 export default function Sidebar() {
   const { data: agents = [], isLoading } = useAgents()
   const selectedAgentId = useUIStore((s) => s.selectedAgentId)
   const selectAgent = useUIStore((s) => s.selectAgent)
+  const addAgentNode = useWorkflowStore((s) => s.addAgentNode)
   const [showForm, setShowForm] = useState(false)
   const createAgent = useCreateAgent()
+
+  function handleAddToCanvas(agent: Agent) {
+    const x = 100 + Math.random() * 300
+    const y = 100 + Math.random() * 300
+    addAgentNode(agent, { x, y })
+  }
 
   function handleCreate(data: AgentFormData) {
     createAgent.mutate(data, {
@@ -37,12 +46,16 @@ export default function Sidebar() {
         ) : (
           <div className="flex flex-col gap-0.5">
             {agents.map((agent) => (
-              <AgentCard
+              <div
                 key={agent.id}
-                agent={agent}
-                isSelected={selectedAgentId === agent.id}
-                onSelect={selectAgent}
-              />
+                onDoubleClick={() => handleAddToCanvas(agent)}
+              >
+                <AgentCard
+                  agent={agent}
+                  isSelected={selectedAgentId === agent.id}
+                  onSelect={selectAgent}
+                />
+              </div>
             ))}
           </div>
         )}
