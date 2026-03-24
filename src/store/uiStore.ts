@@ -15,7 +15,7 @@ interface UIStore {
 export const useUIStore = create<UIStore>((set) => ({
   uiMode: 'menubar',
   sidebarOpen: true,
-  panelOpen: false,
+  panelOpen: true,
   selectedAgentId: null,
 
   setUIMode: (mode) => set({ uiMode: mode }),
