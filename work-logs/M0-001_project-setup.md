@@ -21,6 +21,17 @@
 - [x] 보일러플레이트 정리, orchestrAItor 네이밍 통일
 - [x] `pnpm build` + `cargo check` 빌드 확인
 - [x] PR #1 생성
+- [x] PR #1 리뷰 피드백 반영 (플러그인 등록 + capabilities permissions)
+
+## 리뷰 피드백 (PR #1)
+
+| 심각도 | 이슈 | 조치 |
+|--------|------|------|
+| Critical | 플러그인 `.plugin()` 등록 누락 | **수정 완료** (ab6c46d) |
+| Critical | capabilities permissions 누락 | **수정 완료** (ab6c46d) |
+| Critical | CSP null 비활성화 | 후순위 — toy project, M1+ 에서 필요 시 설정 |
+| Warning | README 템플릿 기본값 | 후순위 — 기능 완성 후 작성 |
+| Warning | `.expect()` 패닉 가능성 | 수용 — Tauri 공식 패턴, 앱 초기화 실패 시 패닉이 적절 |
 
 ## 커밋 이력
 - 6578662 chore: scaffold Tauri v2 + React + TypeScript project
@@ -35,6 +46,8 @@
 - b90e1de chore: rename to orchestrAItor and clean up boilerplate
 - e13eec7 chore: add /write-pr local skill
 - 9075e13 docs: add /write-pr to dev flow and skills list
+- 92cc8ce docs: update PR plan and work-logs for PR #1
+- ab6c46d fix: register Tauri plugins and add capabilities permissions
 
 ## 메모
 - pnpm 10.28.2, Node.js v20.11.0, Rust 1.94.0
