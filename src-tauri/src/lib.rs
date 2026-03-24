@@ -6,6 +6,7 @@ use tauri::Manager;
 use tauri_plugin_sql::{Migration, MigrationKind};
 
 use commands::keyring::{delete_api_key, get_api_key, has_api_key, set_api_key};
+use commands::models::fetch_models;
 use commands::window::{show_main_window, toggle_floating_window};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -33,6 +34,7 @@ pub fn run() {
             get_api_key,
             delete_api_key,
             has_api_key,
+            fetch_models,
         ])
         .setup(|app| {
             let show_main = MenuItemBuilder::with_id("show_main", "Show Main").build(app)?;
