@@ -130,5 +130,5 @@ See `docs/PRD.md` for full product spec.
 
 | PR | 브랜치 | 범위 | 상태 |
 |----|--------|------|------|
-| PR8 | `feat/m2-react-flow` | React Flow 설치 + DAG 에디터 + 에이전트 노드 컴포넌트 | 대기 |
+| PR8 | `feat/m2-react-flow` | React Flow 설치 + DAG 에디터 + 에이전트 노드 컴포넌트 | merged |
 | PR9 | `feat/m2-workflow-crud` | 워크플로우 CRUD (DB 저장/로딩) + 목록/선택 UI | 대기 |
