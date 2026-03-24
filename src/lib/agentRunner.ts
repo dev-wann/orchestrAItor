@@ -23,21 +23,17 @@ export async function runAgent({
   signal,
 }: RunAgentParams): Promise<void> {
   try {
-    // 1. Fetch API key from the OS keyring via Tauri
     const apiKey = await invoke<string>('get_api_key', {
       provider: agent.provider,
     })
 
-    // 2. Create Anthropic client (dangerouslyAllowBrowser is safe in Tauri WebView)
     const client = new Anthropic({
       apiKey,
       dangerouslyAllowBrowser: true,
     })
 
-    // 3. Notify running state
     onStatusChange('running')
 
-    // 4. Start streaming request
     const stream = client.messages.stream(
       {
         model: agent.model,
@@ -48,13 +44,30 @@ export async function runAgent({
       { signal },
     )
 
-    // 5. Handle per-token streaming
+    // Buffer tokens and flush at intervals to reduce store updates
+    let buffer = ''
+    let flushTimer: ReturnType<typeof setTimeout> | null = null
+
+    const flush = () => {
+      if (buffer) {
+        onToken(buffer)
+        buffer = ''
+      }
+      flushTimer = null
+    }
+
     stream.on('text', (text) => {
-      onToken(text)
+      buffer += text
+      if (!flushTimer) {
+        flushTimer = setTimeout(flush, 50)
+      }
     })
 
-    // 6. Wait for stream to complete, then extract results
     const finalMessage = await stream.finalMessage()
+
+    // Flush any remaining buffer
+    if (flushTimer) clearTimeout(flushTimer)
+    flush()
 
     const fullOutput = finalMessage.content
       .filter((block): block is Anthropic.TextBlock => block.type === 'text')
@@ -65,9 +78,7 @@ export async function runAgent({
       finalMessage.usage.input_tokens + finalMessage.usage.output_tokens
 
     onComplete(fullOutput, tokenCount)
-    onStatusChange('completed')
 
-    // 7. Log success
     await logAgent(
       agent.id,
       'info',
@@ -82,7 +93,6 @@ export async function runAgent({
     const message =
       err instanceof Error ? err.message : 'Unknown error occurred'
 
-    // Distinguish abort from other errors
     if (signal?.aborted) {
       onError('Agent execution was cancelled')
       onStatusChange('idle')
