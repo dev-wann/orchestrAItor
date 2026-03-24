@@ -1,11 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getDb } from '../lib/db'
-import type { Agent, AppSetting, Provider } from '../types/database'
+import type { Agent, AppSetting, Provider, Workflow } from '../types/database'
 
 // ── Query Keys ───────────────────────────────────────────────────────
 const queryKeys = {
   agents: ['agents'] as const,
   appSetting: (key: string) => ['app_setting', key] as const,
+  workflows: ['workflows'] as const,
 }
 
 // ── useAgents ────────────────────────────────────────────────────────
@@ -172,6 +173,112 @@ export function useDeleteAgent() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.agents })
+    },
+  })
+}
+
+// ── useWorkflows ─────────────────────────────────────────────────────
+/** Fetches all workflows ordered by last update (newest first). */
+export function useWorkflows() {
+  return useQuery<Workflow[]>({
+    queryKey: queryKeys.workflows,
+    queryFn: async () => {
+      try {
+        const db = await getDb()
+        return await db.select<Workflow[]>(
+          'SELECT * FROM workflows ORDER BY updated_at DESC',
+        )
+      } catch (error) {
+        console.error('[useWorkflows] Failed to fetch workflows:', error)
+        throw error
+      }
+    },
+  })
+}
+
+// ── useCreateWorkflow ────────────────────────────────────────────────
+interface CreateWorkflowVars {
+  name: string
+}
+
+/** Creates a new workflow with an empty graph and invalidates the workflows query cache. */
+export function useCreateWorkflow() {
+  const queryClient = useQueryClient()
+
+  return useMutation<string, Error, CreateWorkflowVars>({
+    mutationFn: async ({ name }: CreateWorkflowVars) => {
+      try {
+        const db = await getDb()
+        const id = crypto.randomUUID()
+        const graph = '{"nodes":[],"edges":[]}'
+        await db.execute(
+          'INSERT INTO workflows (id, name, graph) VALUES ($1, $2, $3)',
+          [id, name, graph],
+        )
+        return id
+      } catch (error) {
+        console.error('[useCreateWorkflow] Failed to create workflow:', error)
+        throw error
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.workflows })
+    },
+  })
+}
+
+// ── useSaveWorkflowGraph ─────────────────────────────────────────────
+interface SaveWorkflowGraphVars {
+  id: string
+  graph: string
+}
+
+/** Saves the canvas graph JSON to an existing workflow. */
+export function useSaveWorkflowGraph() {
+  const queryClient = useQueryClient()
+
+  return useMutation<void, Error, SaveWorkflowGraphVars>({
+    mutationFn: async ({ id, graph }: SaveWorkflowGraphVars) => {
+      try {
+        const db = await getDb()
+        const result = await db.execute(
+          "UPDATE workflows SET graph = $1, updated_at = datetime('now') WHERE id = $2",
+          [graph, id],
+        )
+        if (result.rowsAffected === 0) throw new Error(`Workflow not found: ${id}`)
+      } catch (error) {
+        console.error('[useSaveWorkflowGraph] Failed to save workflow graph:', error)
+        throw error
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.workflows })
+    },
+  })
+}
+
+// ── useDeleteWorkflow ────────────────────────────────────────────────
+interface DeleteWorkflowVars {
+  id: string
+}
+
+/** Deletes a workflow and invalidates the workflows query cache. */
+export function useDeleteWorkflow() {
+  const queryClient = useQueryClient()
+
+  return useMutation<void, Error, DeleteWorkflowVars>({
+    mutationFn: async ({ id }: DeleteWorkflowVars) => {
+      try {
+        const db = await getDb()
+        const result = await db.execute('DELETE FROM workflows WHERE id = $1', [id])
+        if (result.rowsAffected === 0) throw new Error(`Workflow not found: ${id}`)
+      } catch (error) {
+        console.error('[useDeleteWorkflow] Failed to delete workflow:', error)
+        throw error
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.workflows })
     },
   })
 }
