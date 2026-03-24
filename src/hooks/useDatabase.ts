@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getDb } from '../lib/db'
-import type { Agent, AppSetting } from '../types/database'
+import type { Agent, AppSetting, Provider } from '../types/database'
 
 // ── Query Keys ───────────────────────────────────────────────────────
 const queryKeys = {
@@ -77,6 +77,99 @@ export function useSetAppSetting() {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.appSetting(variables.key),
       })
+    },
+  })
+}
+
+// ── useCreateAgent ──────────────────────────────────────────────────
+interface CreateAgentVars {
+  name: string
+  provider: Provider
+  model: string
+  systemPrompt: string
+  color: string
+}
+
+/** Creates a new agent and invalidates the agents query cache. */
+export function useCreateAgent() {
+  const queryClient = useQueryClient()
+
+  return useMutation<void, Error, CreateAgentVars>({
+    mutationFn: async ({ name, provider, model, systemPrompt, color }: CreateAgentVars) => {
+      try {
+        const db = await getDb()
+        const id = crypto.randomUUID()
+        await db.execute(
+          `INSERT INTO agents (id, name, provider, model, system_prompt, color)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [id, name, provider, model, systemPrompt, color],
+        )
+      } catch (error) {
+        console.error('[useCreateAgent] Failed to create agent:', error)
+        throw error
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.agents })
+    },
+  })
+}
+
+// ── useUpdateAgent ──────────────────────────────────────────────────
+interface UpdateAgentVars {
+  id: string
+  name: string
+  provider: Provider
+  model: string
+  systemPrompt: string
+  color: string
+}
+
+/** Updates an existing agent and invalidates the agents query cache. */
+export function useUpdateAgent() {
+  const queryClient = useQueryClient()
+
+  return useMutation<void, Error, UpdateAgentVars>({
+    mutationFn: async ({ id, name, provider, model, systemPrompt, color }: UpdateAgentVars) => {
+      try {
+        const db = await getDb()
+        await db.execute(
+          `UPDATE agents SET name = $1, provider = $2, model = $3, system_prompt = $4, color = $5, updated_at = datetime('now')
+           WHERE id = $6`,
+          [name, provider, model, systemPrompt, color, id],
+        )
+      } catch (error) {
+        console.error('[useUpdateAgent] Failed to update agent:', error)
+        throw error
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.agents })
+    },
+  })
+}
+
+// ── useDeleteAgent ──────────────────────────────────────────────────
+interface DeleteAgentVars {
+  id: string
+}
+
+/** Deletes an agent and invalidates the agents query cache. */
+export function useDeleteAgent() {
+  const queryClient = useQueryClient()
+
+  return useMutation<void, Error, DeleteAgentVars>({
+    mutationFn: async ({ id }: DeleteAgentVars) => {
+      try {
+        const db = await getDb()
+        await db.execute('DELETE FROM agents WHERE id = $1', [id])
+      } catch (error) {
+        console.error('[useDeleteAgent] Failed to delete agent:', error)
+        throw error
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.agents })
     },
   })
 }
