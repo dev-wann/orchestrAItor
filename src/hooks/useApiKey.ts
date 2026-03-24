@@ -9,9 +9,9 @@ const apiKeyKeys = {
 
 // ── useHasApiKey ─────────────────────────────────────────────────────
 /** Checks whether an API key exists in the system keyring for the given provider. */
-export function useHasApiKey(provider: Provider) {
+export function useHasApiKey(provider: Provider | '') {
   return useQuery<boolean>({
-    queryKey: apiKeyKeys.hasKey(provider),
+    queryKey: apiKeyKeys.hasKey(provider as Provider),
     queryFn: async () => {
       try {
         return await invoke<boolean>('has_api_key', { provider })
@@ -20,6 +20,7 @@ export function useHasApiKey(provider: Provider) {
         throw error
       }
     },
+    enabled: provider !== '',
   })
 }
 

@@ -11,7 +11,7 @@ interface ProviderRowProps {
 
 export default function ProviderRow({ provider, displayName, isOllama = false }: ProviderRowProps) {
   const [inputValue, setInputValue] = useState('')
-  const { data: hasKey, isLoading: isChecking } = useHasApiKey(provider)
+  const { data: hasKey, isLoading: isChecking } = useHasApiKey(isOllama ? '' : provider)
   const setApiKey = useSetApiKey()
   const deleteApiKey = useDeleteApiKey()
 
@@ -28,6 +28,7 @@ export default function ProviderRow({ provider, displayName, isOllama = false }:
   }
 
   function handleDelete() {
+    if (!window.confirm(`Delete ${displayName} API key?`)) return
     deleteApiKey.mutate({ provider })
   }
 
@@ -91,6 +92,7 @@ export default function ProviderRow({ provider, displayName, isOllama = false }:
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
+            aria-label={`${displayName} API key`}
             className="flex-1 rounded-md bg-neutral-800 border border-neutral-700 px-3 py-1.5 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
           />
         )}
@@ -112,6 +114,7 @@ export default function ProviderRow({ provider, displayName, isOllama = false }:
             className="rounded-md bg-red-600/10 px-3 py-1.5 text-sm font-medium text-red-400 hover:bg-red-600/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <Trash2 size={14} />
+            <span className="sr-only">Delete {displayName} API key</span>
           </button>
         )}
       </div>
