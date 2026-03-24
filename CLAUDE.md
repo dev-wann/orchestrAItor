@@ -124,4 +124,4 @@ See `docs/PRD.md` for full product spec.
 |----|--------|------|------|
 | PR5 | `feat/m1-provider-keys` | Rust keyring 크레이트 + API Key CRUD 커맨드 + 프로바이더 설정 UI | merged |
 | PR6 | `feat/m1-agent-crud` | 에이전트 추가/편집/삭제 UI + DB 연동 | merged |
-| PR7 | `feat/m1-model-fetch` | 프로바이더별 모델 목록 fetch + 모델 선택 UI | 대기 |
+| PR7 | `feat/m1-model-fetch` | 프로바이더별 모델 목록 fetch + 모델 선택 UI | merged |
