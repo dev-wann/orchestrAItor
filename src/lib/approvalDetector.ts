@@ -1,13 +1,10 @@
+// Patterns must appear at the start of a line to reduce false positives
 const APPROVAL_PATTERNS = [
-  'APPROVAL_REQUIRED',
-  'HUMAN_REVIEW_NEEDED',
-  '[APPROVAL]',
+  /^APPROVAL_REQUIRED/m,
+  /^HUMAN_REVIEW_NEEDED/m,
+  /^\[APPROVAL\]/m,
 ] as const
 
-/**
- * Detects whether the given text contains any approval-request pattern.
- * Returns true if at least one pattern is found.
- */
 export function detectApprovalRequest(text: string): boolean {
-  return APPROVAL_PATTERNS.some((pattern) => text.includes(pattern))
+  return APPROVAL_PATTERNS.some((pattern) => pattern.test(text))
 }

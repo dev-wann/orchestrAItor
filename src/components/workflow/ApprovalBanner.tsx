@@ -2,14 +2,12 @@ import { AlertTriangle } from 'lucide-react'
 
 interface ApprovalBannerProps {
   agentName: string
-  nodeId: string
   onApprove: () => void
   onReject: () => void
 }
 
 export default function ApprovalBanner({
   agentName,
-  nodeId: _nodeId,
   onApprove,
   onReject,
 }: ApprovalBannerProps) {

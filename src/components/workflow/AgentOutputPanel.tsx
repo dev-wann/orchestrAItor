@@ -75,7 +75,6 @@ export default function AgentOutputPanel({ agentId }: AgentOutputPanelProps) {
       {agent.status === 'approval_required' && (
         <ApprovalBanner
           agentName={agent.name}
-          nodeId={agent.id}
           onApprove={handleApprove}
           onReject={handleReject}
         />

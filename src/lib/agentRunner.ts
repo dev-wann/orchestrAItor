@@ -114,7 +114,14 @@ export async function runAgent({
         await notifyApprovalRequired(agent.name)
         await logAgent(agent.id, 'warn', 'Approval required — waiting for user')
 
-        const approved = await approvalManager.waitForApproval(approvalKey)
+        // Race approval against abort signal
+        const approved = await Promise.race([
+          approvalManager.waitForApproval(approvalKey),
+          new Promise<boolean>((resolve) => {
+            if (signal?.aborted) { resolve(false); return }
+            signal?.addEventListener('abort', () => resolve(false), { once: true })
+          }),
+        ])
 
         if (!approved) {
           onError('Agent execution was rejected by user')

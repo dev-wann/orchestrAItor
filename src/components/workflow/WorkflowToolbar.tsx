@@ -13,6 +13,7 @@ import type { Agent, Workflow } from '../../types/database'
 import type { AgentNodeData } from './AgentNode'
 import RunButton from './RunButton'
 import { executeWorkflow } from '../../lib/dagEngine'
+import { approvalManager } from '../../lib/approvalManager'
 
 interface WorkflowGraph {
   nodes: Node<AgentNodeData>[]
@@ -187,6 +188,7 @@ export default function WorkflowToolbar() {
   // ── Stop workflow ───────────────────────────────────────────────────
   const handleStop = useCallback(() => {
     abortRef.current?.abort()
+    approvalManager.cancelAll()
     setRunning(false)
   }, [setRunning])
 
