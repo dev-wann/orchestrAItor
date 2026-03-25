@@ -1,6 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { useAgentStore } from '../../store/agentStore'
 import type { AgentStatus } from '../../types/database'
+import { approvalManager } from '../../lib/approvalManager'
+import ApprovalBanner from './ApprovalBanner'
 
 interface AgentOutputPanelProps {
   agentId: string | null
@@ -27,6 +29,18 @@ export default function AgentOutputPanel({ agentId }: AgentOutputPanelProps) {
       el.scrollTop = el.scrollHeight
     }
   }, [agent?.current_output])
+
+  const handleApprove = useCallback(() => {
+    if (agent) {
+      approvalManager.resolve(agent.id, true)
+    }
+  }, [agent])
+
+  const handleReject = useCallback(() => {
+    if (agent) {
+      approvalManager.resolve(agent.id, false)
+    }
+  }, [agent])
 
   if (!agent) {
     return (
@@ -56,6 +70,15 @@ export default function AgentOutputPanel({ agentId }: AgentOutputPanelProps) {
           {agent.token_count.toLocaleString()} tokens
         </span>
       </div>
+
+      {/* Approval Banner */}
+      {agent.status === 'approval_required' && (
+        <ApprovalBanner
+          agentName={agent.name}
+          onApprove={handleApprove}
+          onReject={handleReject}
+        />
+      )}
 
       {/* Output */}
       <pre

@@ -173,6 +173,7 @@ export async function executeWorkflow(
               callbacks.onNodeError(nodeId, error)
             },
             signal: callbacks.signal,
+            nodeId,
           })
 
           // If runAgent completed without calling onComplete, mark as failed
